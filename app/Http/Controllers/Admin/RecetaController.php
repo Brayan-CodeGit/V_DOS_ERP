@@ -62,13 +62,13 @@ class RecetaController extends Controller
     public function edit(Receta $receta)
     {
         // Carga la relación 'detalles' antes de pasarla a la vista
-    $receta->load('detalles'); 
+    $receta->load('detalles.productoComponente'); 
     
     // Si también necesitas cargar la relación 'componente' dentro de 'detalles' (para el nombre del producto)
     // usa: $receta->load('detalles.componente');
 
     // También carga los productos que pueden ser componentes (MP y SE) para el SELECT
-    $componentes = Producto::whereIn('Tipo_Producto', ['MP', 'SE'])->get();
+    $componentes = Producto::whereIn('Tipo_Producto', ['Materia Prima', 'Semielaborado'])->get();
     
     return view('admin.recetas.edit', compact('receta', 'componentes'));
     }

@@ -39,4 +39,8 @@ class Producto extends Model
         // Un Producto es el ID_Producto_Componente en la tabla 'detalle_receta'
         return $this->hasMany(DetalleReceta::class, 'ID_Producto_Componente', 'ID_Producto');
     }
+    /* public function getRouteKeyName(): string
+    {
+        return 'ID_Producto';
+    } */
 }

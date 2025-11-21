@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class DetalleReceta extends Model
 {
@@ -34,19 +35,36 @@ class DetalleReceta extends Model
     {
         return $this->belongsTo(Producto::class, 'ID_Producto_Componente', 'ID_Producto');
     }
+    
+    // Alias para la relación del producto componente (para compatibilidad en Blade)
+    public function componente(): BelongsTo 
+    {
+         return $this->productoComponente();
+    }
 
+    /**
+     * Get the route key for the model.
+     * Esto asegura que Laravel use 'ID_Detalle' para la inyección de modelos en las rutas.
+     */
     public function getRouteKeyName(): string
     {
         return 'ID_Detalle';
     }
-    public function detalles()
+    
+    // NOTA: Los métodos 'detalles()' y 'esComponenteDe()' están definidos de forma inusual 
+    // en este modelo, ya que son relaciones de tipo 'hasMany' que generalmente van en los 
+    // modelos 'Receta' y 'Producto' respectivamente. Se mantienen por si son necesarios 
+    // para otros fines en la aplicación, pero su definición correcta es la siguiente:
+
+    // Este debería ir en Receta.php
+    public function detalles(): HasMany
     {
-        // Usa la FK 'ID_Receta' y la PK 'ID_Receta'
         return $this->hasMany(DetalleReceta::class, 'ID_Receta', 'ID_Receta');
     }
-    public function esComponenteDe()
-{
-    // Usa la FK 'ID_Producto_Componente' y la PK 'ID_Producto'
-    return $this->hasMany(DetalleReceta::class, 'ID_Producto_Componente', 'ID_Producto');
-}
+    
+    // Este debería ir en Producto.php
+    public function esComponenteDe(): HasMany
+    {
+        return $this->hasMany(DetalleReceta::class, 'ID_Producto_Componente', 'ID_Producto');
+    }
 }
