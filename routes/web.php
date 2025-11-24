@@ -5,8 +5,15 @@ use App\Http\Controllers\Admin\DetalleRecetaController;
 use App\Http\Controllers\Admin\ProductoController;
 use App\Http\Controllers\Admin\RecetaController;
 use App\Http\Controllers\Admin\UserController;
+use App\Http\Controllers\Admin\ProveedorController;
 use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
+
+/*
+|--------------------------------------------------------------------------
+| Web Routes
+|--------------------------------------------------------------------------
+*/
 
 Route::get('/', function () {
     return view('welcome');
@@ -16,57 +23,45 @@ Route::get('/dashboard', function () {
     return view('dashboard');
 })->middleware(['auth', 'verified'])->name('dashboard');
 
+// Perfil del usuario
 Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 });
 
-Route::middleware(['auth', 'role:administration'])->prefix('admin')->group(function () {
-    // 1. Mostrar el formulario para crear un nuevo usuario
+// Grupo Admin
+Route::middleware(['auth', 'role:administration'])->prefix('admin')->name('admin.')->group(function () {
 
-    Route::resource('users', UserController::class)->names('admin.users');
-    /* Route::get('/users/create', [UserController::class, 'create'])->name('admin.users.create');
-    
-    // 2. Procesar la creación del nuevo usuario y asignación de rol
-    Route::post('/users', [UserController::class, 'store'])->name('admin.users.store');
-    
-    // (Opcional) Listar y gestionar usuarios
-    Route::get('/users', [UserController::class, 'index'])->name('admin.users.index'); */
+    // Usuarios
+    Route::resource('users', UserController::class)
+        ->names('users');
 
-    // 5. EDIT (Mostrar formulario de edición) <-- ¡FALTA ESTA!
-    /* Route::get('/users/{user}/edit', [UserController::class, 'edit'])->name('admin.users.edit');
-    
-    // 6. UPDATE (Procesar la actualización) <-- ¡FALTA ESTA!
-    Route::put('/users/{user}', [UserController::class, 'update'])->name('admin.users.update');
-    
-    // 7. DELETE (Eliminar un usuario) <-- ¡FALTA ESTA!
-    Route::delete('/users/{user}', [UserController::class, 'destroy'])->name('admin.users.destroy'); */
+    // Productos
+    Route::resource('productos', ProductoController::class)
+        ->names('productos');
 
-    Route::resource('productos', ProductoController::class)->names('admin.productos');
-    /* Route::resource('almacenes', AlmacenController::class)->names('admin.almacenes')
-    ->parameters(['almacenes' => 'ID_Almacen']); */
+    // Almacenes
     Route::resource('almacenes', AlmacenController::class)
-        ->names('admin.almacenes')
-        // 1. Esto asegura que el parámetro esperado por la ruta se llame 'almacen' (singular del recurso)
-        //    y no trate de usar ID_Almacen en la URI.
+        ->names('almacenes')
         ->parameters([
-            'almacenes' => 'almacen', 
+            'almacenes' => 'almacen', // Route model binding singular
         ]);
-        // 2. Esto le dice al Route Model Binding que use la clave 'ID_Almacen' para la búsqueda.
-        /* ->bindingFields([
-            'almacen' => 'ID_Almacen'
-        ]); */
 
-        Route::resource('recetas', RecetaController::class)
-        ->names('admin.recetas');   
-        Route::resource('recetas', RecetaController::class)->names('admin.recetas');
+    // Recetas
+    Route::resource('recetas', RecetaController::class)
+        ->names('recetas');
 
-    // ➡️ CRUD de DETALLE_RECETA (ANIDADO)
-    // El URI será: /admin/recetas/{receta}/detalles
+    // Detalle de Recetas (anidado)
     Route::resource('recetas.detalles', DetalleRecetaController::class)
-        ->names('admin.recetas.detalles')
+        ->names('recetas.detalles')
         ->except(['index', 'show', 'create']);
+
+    // Proveedores
+    Route::resource('proveedores', ProveedorController::class)
+    ->names('proveedores')
+    ->parameters(['proveedores' => 'proveedor']);
+
 });
 
 require __DIR__.'/auth.php';
